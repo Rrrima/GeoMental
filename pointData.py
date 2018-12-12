@@ -4,7 +4,7 @@ from geoMap import GeoMap
 
 
 class PointFeatures(object):
-	def __init__(self, data, value):
+	def __init__(self, data, map):
 		# data: data in row from xls
 		self._map = map
 		self._x = data[0]
@@ -18,7 +18,7 @@ class PointFeatures(object):
 		self._Pb = data[8]
 		self._As = data[9]
 		self._Hg = data[10]
-		self._value = value
+		self._value = map.get_pixel_value(self._x,self._y)
 
 	@property
 	def x(self):
@@ -38,15 +38,20 @@ class PointFeatures(object):
 	
 
 class SampleSet(object):
-	def __init__(self, dataPath, mapPath)
+	def __init__(self, dataPath, mapPath):
 		self._map = GeoMap(mapPath)
 		self._origin_points = get_sampling_points(dataPath)
 		self._size = len(self._origin_points)
-		self._points = self._create_points()
+		self._featured_points = self._create_points()
 
 	@property
 	def size(self):
 		return self._size
+
+	@property
+	def points(self):
+		return self._featured_points
+	
 	
 	def _convert_point(self,x,y):
 		ref_map = self._map
@@ -57,15 +62,14 @@ class SampleSet(object):
 		return int((x-x0)/pw),int((y-y0)/ph)
 
 	def _create_points(self):
-
-
-
-for i in range(1,nrows):
-		this_point = table.row_values(i)
-		converted_cord = convert_point(FILEPATH_MAP,this_point[0],this_point[1])
-		this_point[0] = converted_cord[0]
-		this_point[1] = converted_cord[1]
-		if ((this_point[0]>0) & (this_point[1]>0)):
-			data.append(this_point)
-	pp.pprint(data)
-	return data
+		points = []
+		boundx = self._map.xsize
+		boundy = self._map.ysize
+		for i in range(self.size):
+			this_point = self._origin_points[i]
+			converted_cord = self._convert_point(this_point[0],this_point[1])
+			this_point[0] = converted_cord[0]
+			this_point[1] = converted_cord[1]
+			if ((this_point[0]>0) & (this_point[1]>0) & (this_point[0]<boundx) & (this_point[1]<boundy)):
+				points.append(PointFeatures(this_point,self._map))
+		return points

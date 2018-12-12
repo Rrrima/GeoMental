@@ -34,6 +34,17 @@ class GeoMap(object):
 	def pixel_height(self):
 		return self._ph
 
+	@property
+	def xsize(self):
+		return self._nX
+
+	@property
+	def ysize(self):
+		return self._nY
+	
+
+	
+
 	# TODO: check if x,y are in the right sequence
 	def get_pixel_value(self, x, y, bands_id=None):
 		if bands_id is None:
