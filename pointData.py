@@ -90,8 +90,6 @@ class PointFeatures(object):
 		vector.extend(rgb_std)
 		vector.append(get_std(rgb_std))
 		vector.extend(self._cal_max_min_dis())
-
-
 		return vector
 
 
@@ -100,6 +98,7 @@ class SampleSet(object):
 	def __init__(self, dataPath, mapPath, boundary=None):
 		self._map = GeoMap(mapPath)
 		self._origin_points = get_sampling_points(dataPath)
+		self._size = len(self._origin_points)
 		if boundary is None:
 			self._bleft = 0
 			self._bright = self._map.xsize
@@ -110,14 +109,14 @@ class SampleSet(object):
 			self._bright = boundary[1]
 			self._bbottom = boundary[2]
 			self._btop = boundary[3]
-			print(boundary)
+			#print(boundary)
 		self._featured_points = self._create_points()
 		self._rgb_dbscan_labels = self._clustering_DBSCAN()
-		self._size = len(self._featured_points)
+		self._fsize = len(self._featured_points)
 
 	@property
 	def size(self):
-		return self._size
+		return self._fsize
 
 	@property
 	def points(self):
@@ -145,14 +144,14 @@ class SampleSet(object):
 
 	def _create_points(self):
 		points = []
-		for i in range(self.size):
+		for i in range(self._size):
 			this_point = self._origin_points[i]
 			converted_cord = self._convert_point(this_point[0],this_point[1])
 			this_point[0] = converted_cord[0]
 			this_point[1] = converted_cord[1]
-			print(this_point[0],this_point[1])
+			#print(this_point[0],this_point[1])
 			if (self._is_in_boundary(this_point[0],this_point[1])):
-				print(1)
+				#print(1)
 				points.append(PointFeatures(this_point,self._map))
 		return points
 
