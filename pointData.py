@@ -1,7 +1,7 @@
 # class for PointFeatures
 from utils import *
 from geoMap import GeoMap
-
+from sklearn.cluster import DBSCAN
 
 class PointFeatures(object):
 	def __init__(self, data, map):
@@ -18,7 +18,9 @@ class PointFeatures(object):
 		self._Pb = data[8]
 		self._As = data[9]
 		self._Hg = data[10]
-		self._value = map.get_pixel_value(self._x,self._y)
+		self._rgb = map.get_pixel_value(self._x,self._y)
+		self._vector = self._create_features()
+
 
 	@property
 	def x(self):
@@ -29,13 +31,38 @@ class PointFeatures(object):
 		return self._y
 
 	@property
-	def value(self):
-		return self._value
+	def rgb(self):
+		return self._rgb
 
 	@property
 	def Cr(self):
 		return self._Cr
-	
+
+	@property
+	def vector(self):
+		return self._vector
+
+	def _cal_rgb_dis(self,radius=1):
+		ref_map = self._map
+		value = self._rgb
+		total_dis = 0
+		for x in range(self._x-radius, self._x+radius):
+			for y in range(self.y-radius, self._y+radius):
+				total_dis += eu_distance(ref_map.get_pixel_value(x,y),value)	
+		return total_dis
+
+	# make sure the radius wont exceed image boundaries	
+	def _create_features(self):
+		vector = []
+		bands = self._rgb
+		vector.extend(bands)
+		bands_std = get_std(bands)
+		vector.append(bands_std)
+		vector.append(self._cal_rgb_dis(2))
+
+		return vector
+
+
 
 class SampleSet(object):
 	def __init__(self, dataPath, mapPath):
@@ -43,6 +70,7 @@ class SampleSet(object):
 		self._origin_points = get_sampling_points(dataPath)
 		self._size = len(self._origin_points)
 		self._featured_points = self._create_points()
+		self._rgb_dbscan_labels = self._clustering_DBSCAN()
 
 	@property
 	def size(self):
@@ -51,6 +79,10 @@ class SampleSet(object):
 	@property
 	def points(self):
 		return self._featured_points
+
+	@property
+	def rgb_labels(self):
+		return self._rgb_dbscan_labels
 	
 	
 	def _convert_point(self,x,y):
@@ -73,3 +105,24 @@ class SampleSet(object):
 			if ((this_point[0]>0) & (this_point[1]>0) & (this_point[0]<boundx) & (this_point[1]<boundy)):
 				points.append(PointFeatures(this_point,self._map))
 		return points
+
+	def _clustering_DBSCAN(self):
+		matrix = [each.rgb for each in self.points]
+		# change params here
+		clustering_re = DBSCAN(eps=3, min_samples=3).fit(matrix)
+		labels = clustering_re.labels_
+		return labels
+
+
+
+
+
+
+
+
+
+
+
+
+
+

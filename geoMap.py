@@ -43,8 +43,6 @@ class GeoMap(object):
 		return self._nY
 	
 
-	
-
 	# TODO: check if x,y are in the right sequence
 	def get_pixel_value(self, x, y, bands_id=None):
 		if bands_id is None:
