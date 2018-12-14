@@ -32,7 +32,7 @@ def train_nn_model(matrix,ty):
 				print(min_loss)
 				this_key = str(hls)+'-'+str(alp)+'-'+str(mi)
 				params_dict[this_key] = min_loss
-				dump(best_model, path.join('nn_models','removed',this_key+'-'+str(int(min_loss))+'.joblib')) 
+				dump(best_model, path.join('nn_models','removed2',this_key+'-'+str(int(min_loss))+'.joblib')) 
 	print (params_dict)
 	
 

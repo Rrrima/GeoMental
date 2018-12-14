@@ -3,6 +3,7 @@ import pprint
 import numpy as np 
 from scipy.spatial import distance
 import matplotlib.pyplot as plt
+import xlwt
 
 pp = pprint.PrettyPrinter(indent=4)
 # x:latitude
@@ -129,18 +130,31 @@ def print_all_mental_maps(xlist,ylist,mental_values,names):
 		for i in range(nr+1):
 			for j in range(3):
 				if (3*i+j)<num:
-					images.append(axs[i,j].scatter(xlist,ylist,c=clist[3*i+j],s=2.5))
+					images.append(axs[i,j].scatter(xlist,ylist,c=clist[3*i+j],s=8))
 					axs[i,j].set_title(names[3*i+j],fontsize=5)
 					axs[i,j].label_outer()
 	if nr==0:
 		fig, axs = plt.subplots(1,num)
 		fig.suptitle('overall models',fontsize=14, fontweight='bold')
 		for j in range(num):
-			images.append(axs[j].scatter(xlist,ylist,c=clist[j],s=2.5))
+			images.append(axs[j].scatter(xlist,ylist,c=clist[j],s=8))
 			axs[j].set_title(names[j],fontsize=5)
 			axs[j].label_outer()
 	fig.colorbar(images[0], ax=axs, orientation='horizontal',fraction=.05)
 	plt.show()
+
+def dump_to_excel(names,pys):
+	workbook = xlwt.Workbook(encoding = 'utf-8')
+	worksheet = workbook.add_sheet('results_nn_test')
+	for i in range(len(names)):
+		worksheet.write(0,i, names[i])
+	for i in range(len(pys)):
+		py = pys[i]
+		for j in range(len(py)):
+			worksheet.write(j+1,i, py[j])
+	workbook.save('results_nn_test_as.xls')
+
+
 
 
 

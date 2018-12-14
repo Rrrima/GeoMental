@@ -36,7 +36,7 @@ class PointFeatures(object):
 
 	@property
 	def Cr(self):
-		return self._Cr
+		return self._As
 
 	@property
 	def vector(self):
