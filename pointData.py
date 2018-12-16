@@ -2,6 +2,7 @@
 from utils import *
 from geoMap import GeoMap
 from sklearn.cluster import DBSCAN
+import numpy as np
 
 class PointFeatures(object):
 	def __init__(self, data, map):
@@ -33,7 +34,9 @@ class PointFeatures(object):
 	@property
 	def rgb(self):
 		return self._rgb
-
+    
+    # change the mental element HERE
+    # TODO: change it into another representitive way
 	@property
 	def Cr(self):
 		return self._As
@@ -71,6 +74,31 @@ class PointFeatures(object):
 					dis_list.append(eu_distance(ref_map.get_pixel_value(x,y),value))
 		return [np.max(dis_list),np.min(dis_list)]
 
+	# 1. mean(mean(r+g+b)) in radius
+	# 2. mean(r) in radius
+	# 3. mean(g) in radius
+	# 4. mean(b) in radius
+	# 5. mean(max)
+	# 6. mean(min)
+	def _cal_mean_rgb(self,radius):
+		ref_map = self._map
+		rgb_mean = []
+		r = []
+		g = []
+		b = []
+		rgb_max = []
+		rgb_min = []
+		for x in range(self._x-radius, self._x+radius+1):
+			for y in range(self.y-radius, self._y+radius+1):
+				this_rgb = ref_map.get_pixel_value(x,y)
+				rgb_mean.append(np.mean(this_rgb))
+				r.append(this_rgb[0])
+				g.append(this_rgb[1])
+				b.append(this_rgb[2])
+				rgb_max.append(max(this_rgb))
+				rgb_min.append(min(this_rgb))
+		return [np.mean(rgb_mean),np.mean(r),np.mean(g),\
+		         np.mean(b),np.mean(rgb_max),np.mean(rgb_min)]
 
 	# make sure the radius wont exceed image boundaries	
 	def _create_features(self):
@@ -81,15 +109,17 @@ class PointFeatures(object):
 		vector.append(bands_std)
 		rgb_dis = []
 		rgb_std = []
-		for i in range(1,5):
+		for i in range(1,31,3):
 			rgb_dis.append(self._cal_rgb_dis(i))
-		for i in range(1,4):
+		for i in range(1,31,3):
 			rgb_std.append(self._cal_total_std(i))
 		vector.extend(rgb_dis)
 		vector.append(get_std(rgb_dis))
 		vector.extend(rgb_std)
 		vector.append(get_std(rgb_std))
 		vector.extend(self._cal_max_min_dis())
+		for i in range(1,31,3):
+			vector.extend(self._cal_mean_rgb(i))
 		return vector
 
 

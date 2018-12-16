@@ -4,6 +4,8 @@ import numpy as np
 from scipy.spatial import distance
 import matplotlib.pyplot as plt
 import xlwt
+from decimal import *
+from scipy.stats.stats import pearsonr 
 
 pp = pprint.PrettyPrinter(indent=4)
 # x:latitude
@@ -143,7 +145,7 @@ def print_all_mental_maps(xlist,ylist,mental_values,names):
 	fig.colorbar(images[0], ax=axs, orientation='horizontal',fraction=.05)
 	plt.show()
 
-def dump_to_excel(names,pys):
+def dump_to_excel_predictions(names,pys):
 	workbook = xlwt.Workbook(encoding = 'utf-8')
 	worksheet = workbook.add_sheet('results_nn_test')
 	for i in range(len(names)):
@@ -152,7 +154,45 @@ def dump_to_excel(names,pys):
 		py = pys[i]
 		for j in range(len(py)):
 			worksheet.write(j+1,i, py[j])
-	workbook.save('results_nn_test_as.xls')
+	workbook.save('prediction_results.xls')
+
+def dump_to_excel_attributes(lx,ly,names,matrix,results,out_name):
+	workbook = xlwt.Workbook()
+	worksheet = workbook.add_sheet('attri_results')
+	worksheet.write(0,0,'latitude')
+	worksheet.write(0,1,'longtitude')
+	for i in range(len(lx)):
+		worksheet.write(i+1,0,lx[i])
+	for i in range(len(ly)):
+		worksheet.write(i+1,1,ly[i])
+	print("finish dumping coordinate")
+	for i in range (len(names)):
+		worksheet.write(0,i+2,names[i])
+	worksheet.write(0,len(names)+2,'mental')
+	print("finish dumping names")
+	for i in range(len(matrix)):
+		point_v = matrix[i]
+		print(point_v)
+		for j in range(len(point_v)):
+			worksheet.write(i+1,j+2,Decimal(str(round(point_v[j],3))))
+	print("finish dumping vecotrs")
+	for i in range(len(results)):
+		worksheet.write(i+1,len(names)+2,results[i])
+	print("finish dumping results")
+    # calculate pearson cor-relationship and p-value
+	num_records = len(matrix)
+	for i in range(len(names)):
+		attri = []
+		for j in range(num_records):
+			attri.append(matrix[j][i])
+		r,p = pearsonr(attri,results)
+		worksheet.write(num_records+1,i+2,r)
+		worksheet.write(num_records+2,i+2,p)
+	print("finish pearson analysis")
+	worksheet.write(num_records+1,0,'pearson_corr')
+	worksheet.write(num_records+2,0,'p_value')
+
+	workbook.save(out_name)
 
 
 
