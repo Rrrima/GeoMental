@@ -2,6 +2,8 @@
 import xlrd
 from collections import defaultdict
 import matplotlib.pyplot as plt
+from utils import show_this_map
+
 
 def drawout_results(this_dict):
 	all_num = int(len(this_dict)/2)
@@ -27,11 +29,11 @@ def drawout_results(this_dict):
 					axes[cr,cn].scatter(int(axi_x[i]),axi_y[i],c='gray',s=3)
 			axes[cr,cn].grid(True)
 			num += 1
+	# remove blank plots 
 	for i in range(num,all_num+1):
 		cr = int(i/3)
 		cn = int(i - 3*cr)
 		axes[cr,cn].set_visible(False)
-
 
 	plt.tight_layout()
 	plt.show()
@@ -41,7 +43,7 @@ def size_trend_analysis(filename,names):
 	data = xlrd.open_workbook(filename)
 	table = data.sheets()[0]  
 	nrows = table.nrows
-	temp =  table.row_values(nrows-1)
+	temp = table.row_values(nrows-1)
 	p_value = temp[2:]
 	results = defaultdict(list)
 	for i in range(len(names)):
@@ -74,6 +76,9 @@ def size_trend_analysis(filename,names):
 			results['ID_MEAN_MIN'].append(x[3])
 	#print (results)
 	drawout_results(results)
+
+
+
 
 
 

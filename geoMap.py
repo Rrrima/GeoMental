@@ -2,6 +2,7 @@ from osgeo import gdal
 
 gdal.AllRegister()
 
+# read the map from given path
 # geo map features
 class GeoMap(object):
 	def __init__(self,path):
@@ -46,7 +47,7 @@ class GeoMap(object):
 	# TODO: check if x,y are in the right sequence
 	def get_pixel_value(self, x, y, bands_id=None):
 		if bands_id is None:
-			bands_id = range(self._nB)
+			bands_id = range(self._nB-1)
 		pvalues = []
 		data = self._data
 		for band_id in bands_id:
